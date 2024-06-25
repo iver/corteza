@@ -1,0 +1,40 @@
+services:
+  server:
+    image: cortezaproject/corteza:2023.9
+    restart: always
+    env_file: [ .env ]
+    depends_on: [ db ]
+    ports: [ "127.0.0.1:18080:80" ]
+
+  db:
+    # El soporte para postgres 13, 14 y 15 está disponible en la última versión de Corteza
+    image: postgres:15
+    container_name: corteza_postgres_service
+    hostname: corteza_postgres
+    # se utiliza para compartir el mismo espacio de red con el Host.
+    # Por ejemplo, es posible que desee acceder a una aplicación
+    # que se esté ejecutando en su PC con Linux desde el contenedor.
+    # network_mode: "host"
+    restart: always
+    healthcheck: { test: ["CMD-SHELL", "pg_isready -U corteza"], interval: 10s, timeout: 5s, retries: 5 }
+    volumes:
+      - "dbdata:/var/lib/postgresql/data"
+    environment:
+      POSTGRES_USER:     corteza
+      POSTGRES_PASSWORD: corteza
+    # Se asigna el mismo puerto para el contenedor que para el host
+    ports:
+      - "5432:5432"
+    networks:
+      close:
+        aliases:
+          - postgres
+
+
+networks:
+  open:
+    driver: bridge
+  close:
+    driver: bridge
+volumes:
+  dbdata:
