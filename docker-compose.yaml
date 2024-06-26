@@ -4,7 +4,11 @@ services:
     restart: always
     env_file: [ .env ]
     depends_on: [ db ]
-    ports: [ "127.0.0.1:18080:80" ]
+    ports: [ "127.0.0.1:8080:80" ]
+    networks:
+      close:
+        aliases:
+          - corteza
 
   db:
     # El soporte para postgres 13, 14 y 15 está disponible en la última versión de Corteza
@@ -36,5 +40,6 @@ networks:
     driver: bridge
   close:
     driver: bridge
+
 volumes:
   dbdata:
